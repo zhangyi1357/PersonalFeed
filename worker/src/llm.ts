@@ -64,6 +64,8 @@ export async function generateSummary(
     );
 
     if (!response.ok) {
+      // Consume body to prevent stalled response warning
+      await response.text().catch(() => {});
       console.error(`LLM API error: ${response.status}`);
       return null;
     }
@@ -77,7 +79,16 @@ export async function generateSummary(
       return null;
     }
 
-    const parsed = JSON.parse(messageContent) as LLMSummaryResult;
+    // Strip markdown code blocks if present
+    let jsonContent = messageContent.trim();
+    if (jsonContent.startsWith('```')) {
+      // Remove opening ```json or ```
+      jsonContent = jsonContent.replace(/^```(?:json)?\s*\n?/, '');
+      // Remove closing ```
+      jsonContent = jsonContent.replace(/\n?```\s*$/, '');
+    }
+
+    const parsed = JSON.parse(jsonContent) as LLMSummaryResult;
 
     // Validate the response structure
     if (

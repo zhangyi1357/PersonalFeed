@@ -16,6 +16,8 @@ export async function fetchArticleContent(
     }, 30000);
 
     if (!response.ok) {
+      // Consume body to prevent stalled response warning
+      await response.text().catch(() => {});
       return { content: '', success: false };
     }
 
