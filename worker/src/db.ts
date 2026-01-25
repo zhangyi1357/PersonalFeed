@@ -56,9 +56,12 @@ export async function getItemsByDate(db: D1Database, date: string): Promise<Feed
       `SELECT * FROM items WHERE date = ? ORDER BY global_score DESC`
     )
     .bind(date)
-    .all<FeedItem>();
+    .all();
 
-  return result.results || [];
+  return (result.results || []).map((row) => ({
+    ...row,
+    tags: typeof row.tags === 'string' ? JSON.parse(row.tags) : (row.tags || []),
+  })) as FeedItem[];
 }
 
 // Check if item exists

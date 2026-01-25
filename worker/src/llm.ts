@@ -58,7 +58,6 @@ export async function generateSummary(
           ],
           max_tokens: maxTokens,
           temperature,
-          response_format: { type: 'json_object' },
         }),
       },
       60000
