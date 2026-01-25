@@ -1,0 +1,21 @@
+name = "personal-feed"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+workers_dev = true
+
+[[d1_databases]]
+binding = "daily_feed_db"
+database_name = "daily-feed-db"
+database_id = "586f1f13-7b26-4a14-8e78-b850fd4fa424"
+
+[vars]
+LLM_BASE_URL = "https://api.deepseek.com/v1"
+LLM_MODEL = "deepseek-chat"
+HN_LIMIT = "30"
+MAX_ARTICLE_CHARS = "12000"
+MAX_OUTPUT_TOKENS = "350"
+TEMPERATURE = "0.1"
+
+# Cron Triggers - run daily at 00:05 UTC (08:05 Beijing time)
+[triggers]
+crons = ["5 0 * * *"]
