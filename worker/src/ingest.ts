@@ -14,10 +14,15 @@ export interface IngestResult {
   errors: string[];
 }
 
-export async function runIngest(env: Env, limit?: number): Promise<IngestResult> {
+export async function runIngest(
+  env: Env,
+  limit?: number,
+  options?: { force?: boolean }
+): Promise<IngestResult> {
   const config = getConfig(env);
   const hnLimit = limit ?? config.hnLimit;
   const date = getShanghaiDateISO();
+  const force = options?.force === true;
 
   const result: IngestResult = {
     date,
@@ -50,6 +55,7 @@ export async function runIngest(env: Env, limit?: number): Promise<IngestResult>
   );
 
   const toProcessStories = validStories.filter((story) => {
+    if (force) return true;
     const existing = states.get(story.id);
     if (!existing) return true;
     if (
@@ -68,7 +74,7 @@ export async function runIngest(env: Env, limit?: number): Promise<IngestResult>
     return true;
   });
 
-  if (toProcessStories.length !== validStories.length) {
+  if (!force && toProcessStories.length !== validStories.length) {
     console.log(
       `Skipping ${validStories.length - toProcessStories.length} already-processed items for ${date}`
     );

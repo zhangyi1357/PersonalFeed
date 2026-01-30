@@ -65,6 +65,8 @@ export function jsonResponse(data: unknown, status: number = 200, cacheSeconds: 
   };
   if (cacheSeconds > 0) {
     headers['Cache-Control'] = `public, max-age=${cacheSeconds}`;
+  } else {
+    headers['Cache-Control'] = 'no-store';
   }
   return new Response(JSON.stringify(data), {
     status,

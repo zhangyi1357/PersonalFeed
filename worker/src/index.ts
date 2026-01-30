@@ -19,6 +19,7 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     const path = url.pathname;
+    const noCache = url.searchParams.has('no_cache') || url.searchParams.has('noCache');
 
     // CORS preflight
     if (request.method === 'OPTIONS') {
@@ -49,7 +50,7 @@ export default {
         count: items.length,
         items,
       };
-      return jsonResponse(response, 200, 300); // Cache 5 minutes
+      return jsonResponse(response, 200, noCache ? 0 : 300); // Cache 5 minutes
     }
 
     // Route: GET /api/feed?date=YYYY-MM-DD
@@ -59,28 +60,34 @@ export default {
         return jsonResponse({ error: 'Invalid date format. Use YYYY-MM-DD' }, 400);
       }
       const items = await getItemsByDate(env.daily_feed_db, dateParam);
+      const today = getShanghaiDateISO();
       const response: FeedResponse = {
         date: dateParam,
         count: items.length,
         items,
       };
-      return jsonResponse(response, 200, 3600); // Cache 1 hour for historical data
+      const cacheSeconds = dateParam === today ? 300 : 3600;
+      return jsonResponse(response, 200, noCache ? 0 : cacheSeconds);
     }
 
     // Route: POST /api/admin/refresh
     if (path === '/api/admin/refresh' && request.method === 'POST') {
       let limit: number | undefined;
+      let force = false;
 
       try {
-        const body = await request.json() as { limit?: number };
+        const body = await request.json() as { limit?: number; force?: boolean };
         if (body.limit && typeof body.limit === 'number') {
           limit = body.limit;
+        }
+        if (typeof body.force === 'boolean') {
+          force = body.force;
         }
       } catch {
         // No body or invalid JSON, use default limit
       }
 
-      const result = await runIngest(env, limit);
+      const result = await runIngest(env, limit, { force });
       const response: RefreshResponse = {
         ok: result.failed === 0,
         date: result.date,

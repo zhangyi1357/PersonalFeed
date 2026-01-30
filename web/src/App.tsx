@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react';
-import { fetchFeedToday, fetchFeedByDate } from './api';
+import { fetchFeedByDate } from './api';
 import type { FeedItem, FeedResponse } from './types';
 import './App.css';
 
 function formatDate(date: Date): string {
-  return date.toISOString().split('T')[0];
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Shanghai',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+  return formatter.format(date);
 }
 
 function ScoreBadge({ score }: { score: number | null }) {
@@ -87,7 +93,7 @@ function FeedCard({ item }: { item: FeedItem }) {
         <div className="meta-left">
           <a href={hnUrl} target="_blank" rel="noopener noreferrer" className="hn-link">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
             </svg>
             {item.hn_score} points · {item.descendants} comments
           </a>
@@ -111,19 +117,19 @@ function App() {
     setLoading(true);
     setError(null);
 
-    const today = formatDate(new Date());
-    const fetchFn = selectedDate === today ? fetchFeedToday : () => fetchFeedByDate(selectedDate);
-
-    fetchFn()
+    fetchFeedByDate(selectedDate)
       .then(setFeed)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, [selectedDate]);
 
   const goToDate = (offset: number) => {
-    const d = new Date(selectedDate);
-    d.setDate(d.getDate() + offset);
-    setSelectedDate(formatDate(d));
+    const parts = selectedDate.split('-').map((p) => Number(p));
+    if (parts.length !== 3 || parts.some((n) => !Number.isFinite(n))) return;
+    const [y, m, d] = parts;
+    const date = new Date(Date.UTC(y, m - 1, d));
+    date.setUTCDate(date.getUTCDate() + offset);
+    setSelectedDate(formatDate(date));
   };
 
   return (
@@ -136,7 +142,7 @@ function App() {
         <div className="date-nav">
           <button onClick={() => goToDate(-1)} className="nav-btn">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M15 18l-6-6 6-6"/>
+              <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
           <input
@@ -147,7 +153,7 @@ function App() {
           />
           <button onClick={() => goToDate(1)} className="nav-btn">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M9 18l6-6-6-6"/>
+              <path d="M9 18l6-6-6-6" />
             </svg>
           </button>
         </div>
@@ -179,7 +185,7 @@ function App() {
             {feed.count === 0 && (
               <div className="empty">
                 <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#ccc" strokeWidth="1.5">
-                  <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 <p>暂无文章</p>
               </div>

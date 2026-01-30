@@ -148,10 +148,18 @@ curl https://personal-feed.zhangyi2537.workers.dev/api/health
 # 获取今日文章
 curl https://personal-feed.zhangyi2537.workers.dev/api/feed/today
 
+# 获取今日文章（跳过缓存）
+curl 'https://personal-feed.zhangyi2537.workers.dev/api/feed/today?no_cache=1'
+
 # 手动触发抓取
 curl -X POST https://personal-feed.zhangyi2537.workers.dev/api/admin/refresh \
   -H "Content-Type: application/json" \
   -d '{"limit": 10}'
+
+# 强制重新生成（忽略已处理的条目，会重新调用 LLM）
+curl -X POST https://personal-feed.zhangyi2537.workers.dev/api/admin/refresh \
+  -H "Content-Type: application/json" \
+  -d '{"limit": 10, "force": true}'
 ```
 
 ## 配置说明
@@ -225,6 +233,10 @@ crons = ["5 0 * * *"]
 ### Q: 如何调整评分偏好？
 
 编辑 `src/llm.ts` 中的 `SYSTEM_PROMPT`，修改用户画像和评分规则。
+
+### Q: 为什么 /api/admin/refresh 返回的 ingested 很少？
+
+`ingested` 表示“本次运行里实际重新处理并写入 ok 的条目数量”。如果当天大部分条目已经处理过，会被跳过，所以 `ingested` 可能远小于 `limit`。如需强制全部重跑，使用 `{"force": true}`。
 
 ## License
 
