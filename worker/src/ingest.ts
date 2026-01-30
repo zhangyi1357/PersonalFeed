@@ -3,8 +3,9 @@ import { FeedItem } from './types';
 import { getTopStoryIds, getItems, filterValidItems } from './hn';
 import { fetchArticleContent } from './reader';
 import { generateSummary } from './llm';
-import { getItemProcessingStatesByIds, upsertItem } from './db';
+import { getItemProcessingStatesByIds, getScoreCalibrationItems, updateGlobalScore, upsertItem } from './db';
 import { getShanghaiDateISO, getISOTimestamp, extractDomain } from './utils';
+import { recalibrateGlobalScores, shouldRecalibrateGlobalScores } from './score';
 
 export interface IngestResult {
   date: string;
@@ -200,6 +201,22 @@ export async function runIngest(env: Env, limit?: number): Promise<IngestResult>
         }
       })
     );
+  }
+
+  try {
+    const calibrationItems = await getScoreCalibrationItems(env.daily_feed_db, date);
+    if (shouldRecalibrateGlobalScores(calibrationItems)) {
+      const mapping = recalibrateGlobalScores(calibrationItems);
+      const updatedAt = getISOTimestamp();
+      await Promise.all(
+        Array.from(mapping.entries()).map(([hnId, score]) =>
+          updateGlobalScore(env.daily_feed_db, date, hnId, score, updatedAt)
+        )
+      );
+      console.log(`Recalibrated global_score for ${mapping.size} items on ${date}`);
+    }
+  } catch (error) {
+    console.error(`Failed to recalibrate scores for ${date}:`, error);
   }
 
   console.log(`Ingest complete: ${result.ingested} ingested, ${result.failed} failed`);

@@ -73,6 +73,44 @@ export async function getItemsByDate(db: D1Database, date: string): Promise<Feed
   })) as FeedItem[];
 }
 
+export type ScoreCalibrationRow = {
+  hn_id: number;
+  global_score: number;
+  hn_score: number | null;
+  descendants: number | null;
+};
+
+export async function getScoreCalibrationItems(db: D1Database, date: string): Promise<ScoreCalibrationRow[]> {
+  const result = await db
+    .prepare(
+      `SELECT hn_id, global_score, hn_score, descendants
+       FROM items
+       WHERE date = ? AND status = 'ok' AND global_score IS NOT NULL`
+    )
+    .bind(date)
+    .all();
+
+  return (result.results || []).map((row: any) => ({
+    hn_id: Number(row.hn_id),
+    global_score: Number(row.global_score),
+    hn_score: row.hn_score === null || typeof row.hn_score === 'undefined' ? null : Number(row.hn_score),
+    descendants: row.descendants === null || typeof row.descendants === 'undefined' ? null : Number(row.descendants),
+  }));
+}
+
+export async function updateGlobalScore(
+  db: D1Database,
+  date: string,
+  hnId: number,
+  globalScore: number,
+  updatedAt: string
+): Promise<void> {
+  await db
+    .prepare(`UPDATE items SET global_score = ?, updated_at = ? WHERE date = ? AND hn_id = ?`)
+    .bind(globalScore, updatedAt, date, hnId)
+    .run();
+}
+
 export type ItemProcessingState = {
   hn_id: number;
   status: 'ok' | 'error';
