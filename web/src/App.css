@@ -96,6 +96,21 @@ body {
   font-size: 14px;
   margin-bottom: 20px;
   padding-left: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.total-tokens {
+  background: #fff;
+  padding: 4px 12px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  font-size: 12px;
+}
+
+.total-tokens strong {
+  color: #764ba2;
 }
 
 .feed-info strong {
@@ -239,6 +254,15 @@ body {
   color: #9ca3af;
 }
 
+.token-usage {
+  font-size: 11px;
+  color: #9ca3af;
+  background: #f9fafb;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #f3f4f6;
+}
+
 /* Card Title */
 .card-title {
   font-size: 18px;
@@ -292,6 +316,7 @@ body {
   color: #4b5563;
   line-height: 1.7;
   margin-bottom: 14px;
+  white-space: pre-wrap;
 }
 
 .expand-btn {
@@ -307,6 +332,36 @@ body {
 
 .expand-btn:hover {
   text-decoration: underline;
+}
+
+/* Recommend Reason */
+.recommend-reason {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, #eff6ff 0%, #ebf5ff 100%);
+  border-radius: 10px;
+  border: 1px solid #dbeafe;
+}
+
+.recommend-label {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  background: #3b82f6;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.recommend-text {
+  font-size: 14px;
+  color: #1e40af;
+  line-height: 1.5;
+  font-style: italic;
 }
 
 /* Tags */

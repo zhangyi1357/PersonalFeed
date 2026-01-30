@@ -24,7 +24,11 @@ export interface FeedItem {
   fetched_at: string;
   summary_short: string | null;
   summary_long: string | null;
+  recommend_reason: string | null;
   global_score: number | null;
+  usage_prompt_tokens: number | null;
+  usage_completion_tokens: number | null;
+  usage_total_tokens: number | null;
   tags: string | null;
   status: 'ok' | 'error';
   error_reason: string | null;
@@ -35,8 +39,14 @@ export interface FeedItem {
 export interface LLMSummaryResult {
   summary_short: string;
   summary_long: string;
+  recommend_reason: string;
   global_score: number;
   tags: string[];
+  usage: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
 }
 
 // API response types

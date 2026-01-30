@@ -18,4 +18,4 @@ TEMPERATURE = "0.1"
 
 # Cron Triggers - run daily at 00:05 UTC (08:05 Beijing time)
 [triggers]
-crons = ["5 0 * * *"]
+crons = ["5 0 * * *", "20 0 * * *", "35 0 * * *"]

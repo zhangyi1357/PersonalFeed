@@ -28,7 +28,6 @@ function TagList({ tags }: { tags: string[] }) {
 }
 
 function FeedCard({ item }: { item: FeedItem }) {
-  const [expanded, setExpanded] = useState(false);
   const hnUrl = `https://news.ycombinator.com/item?id=${item.hn_id}`;
 
   return (
@@ -41,6 +40,11 @@ function FeedCard({ item }: { item: FeedItem }) {
           Hacker News
         </span>
         {item.domain && <span className="domain">{item.domain}</span>}
+        {item.usage_total_tokens && (
+          <span className="token-usage" title={`Prompt: ${item.usage_prompt_tokens} | Completion: ${item.usage_completion_tokens}`}>
+            {item.usage_total_tokens} tokens
+          </span>
+        )}
       </div>
 
       {/* 标题 */}
@@ -63,12 +67,15 @@ function FeedCard({ item }: { item: FeedItem }) {
       {/* 详细摘要 */}
       {item.summary_long && (
         <div className="summary-long">
-          {expanded ? item.summary_long : item.summary_long.slice(0, 150) + (item.summary_long.length > 150 ? '...' : '')}
-          {item.summary_long.length > 150 && (
-            <button className="expand-btn" onClick={() => setExpanded(!expanded)}>
-              {expanded ? '收起' : '展开'}
-            </button>
-          )}
+          {item.summary_long}
+        </div>
+      )}
+
+      {/* 推荐理由 */}
+      {item.recommend_reason && (
+        <div className="recommend-reason">
+          <span className="recommend-label">推荐理由</span>
+          <span className="recommend-text">{item.recommend_reason}</span>
         </div>
       )}
 
@@ -157,10 +164,15 @@ function App() {
         {feed && !loading && (
           <>
             <div className="feed-info">
-              共 <strong>{feed.count}</strong> 篇文章 · {feed.date}
+              <span>共 <strong>{feed.count}</strong> 篇文章（展示前 15 篇）· {feed.date}</span>
+              {feed.items.reduce((acc, item) => acc + (item.usage_total_tokens || 0), 0) > 0 && (
+                <span className="total-tokens">
+                  今日消耗: <strong>{feed.items.reduce((acc, item) => acc + (item.usage_total_tokens || 0), 0).toLocaleString()}</strong> tokens
+                </span>
+              )}
             </div>
             <div className="feed-list">
-              {feed.items.map((item) => (
+              {feed.items.slice(0, 15).map((item) => (
                 <FeedCard key={item.hn_id} item={item} />
               ))}
             </div>

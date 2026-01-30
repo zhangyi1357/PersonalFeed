@@ -10,6 +10,11 @@
 - **标签分类** - 自动生成 3-6 个相关标签
 - **低成本** - 使用 Cloudflare Workers 免费套餐，LLM 成本可控
 
+## 在线地址
+
+- **Web 端**: [https://daily-feed-5z5.pages.dev](https://daily-feed-5z5.pages.dev)
+- **API Endpoint**: `https://personal-feed.zhangyi2537.workers.dev`
+
 ## 系统架构
 
 ```
@@ -93,18 +98,30 @@ npm run deploy
 
 ### 前端部署
 
-```bash
-cd web
+1. **配置环境变量**
 
-# 安装依赖
-npm install
+   复制 `web/.env.example` 为 `web/.env`，并设置后端 API 地址：
 
-# 本地开发
-npm run dev
+   ```bash
+   cd web
+   cp .env.example .env
+   # 编辑 .env 文件，设置 VITE_API_BASE=https://your-worker.workers.dev
+   ```
 
-# 构建生产版本
-npm run build
-```
+2. **构建与部署**
+
+   ```bash
+   # 安装依赖
+   npm install
+
+   # 构建生产版本
+   npm run build
+
+   # 部署到 Cloudflare Pages
+   npx wrangler pages deploy dist
+   ```
+
+
 
 ## 本地开发
 
