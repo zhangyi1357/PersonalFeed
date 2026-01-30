@@ -6,7 +6,8 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "db:init": "wrangler d1 execute daily-feed-db --local --file=schema.sql",
-    "db:init:remote": "wrangler d1 execute daily-feed-db --remote --file=schema.sql"
+    "db:init:remote": "wrangler d1 execute daily-feed-db --remote --file=schema.sql",
+    "refresh:until-complete": "node scripts/refresh_until_complete.mjs"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241230.0",

@@ -160,6 +160,10 @@ curl -X POST https://personal-feed.zhangyi2537.workers.dev/api/admin/refresh \
 curl -X POST https://personal-feed.zhangyi2537.workers.dev/api/admin/refresh \
   -H "Content-Type: application/json" \
   -d '{"limit": 10, "force": true}'
+
+# 多次执行 refresh 直到当天全部总结完成（推荐本地跑，避免手动重复）
+cd worker
+npm run refresh:until-complete -- --base 'https://personal-feed.zhangyi2537.workers.dev'
 ```
 
 ## 配置说明
